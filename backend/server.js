@@ -27,6 +27,13 @@ app.use('/api/settings', require('./routes/settingsRoutes'));
 app.use('/api/activity', require('./routes/activityRoutes'));
 app.use('/api/backup', require('./routes/backupRoutes'));
 
+// Serve frontend in production
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
+});
+
 // Global error handler - logs the real error to the console
 app.use((err, req, res, next) => {
   console.error('🔥 Server Error:', err);
