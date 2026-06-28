@@ -7,6 +7,10 @@ const personSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    aliases: [{
+      type: String,
+      trim: true,
+    }],
     slug: {
       type: String,
       required: true,

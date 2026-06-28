@@ -18,6 +18,7 @@ const PersonEditor = () => {
 
   const [formData, setFormData] = useState({
     name: '',
+    aliases: '',
     relationship: '',
     theme: 'Midnight Aurora',
     status: 'draft',
@@ -52,6 +53,7 @@ const PersonEditor = () => {
           if (person) {
             setFormData({
               name: person.name,
+              aliases: person.aliases ? person.aliases.join(', ') : '',
               relationship: person.relationship || '',
               theme: person.theme,
               status: person.status,
@@ -86,6 +88,7 @@ const PersonEditor = () => {
       const token = localStorage.getItem('adminToken');
       const data = new FormData();
       data.append('name', formData.name.trim());
+      data.append('aliases', formData.aliases);
       data.append('relationship', formData.relationship);
       data.append('theme', formData.theme);
       data.append('status', formData.status);
@@ -150,24 +153,36 @@ const PersonEditor = () => {
             {/* Basic Details */}
             <div className="glass-card rounded-2xl p-5 md:p-6 space-y-4">
               <h3 className="font-semibold text-white">Basic Details</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-white/60 mb-2">Full Name *</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Rahul"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-purple-500/60 transition-colors"
-                  />
+              <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-white/60 mb-2">Full Name *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. Rahul"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-purple-500/60 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-white/60 mb-2">Relationship</label>
+                    <input
+                      type="text"
+                      value={formData.relationship}
+                      onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
+                      placeholder="e.g. Best Friend"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-purple-500/60 transition-colors"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm text-white/60 mb-2">Relationship</label>
+                  <label className="block text-sm text-white/60 mb-2">Nicknames / Aliases (comma separated)</label>
                   <input
                     type="text"
-                    value={formData.relationship}
-                    onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
-                    placeholder="e.g. Best Friend"
+                    value={formData.aliases}
+                    onChange={(e) => setFormData({ ...formData, aliases: e.target.value })}
+                    placeholder="e.g. Babu, Sweety, Honey"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-purple-500/60 transition-colors"
                   />
                 </div>

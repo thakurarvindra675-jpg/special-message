@@ -18,20 +18,34 @@ const searchPeople = async (req, res) => {
     if (!q) return res.status(400).json({ message: 'Query is required' });
     
     // Get all published people to match against
-    const people = await Person.find({ status: 'published' }).select('name slug theme');
+    const people = await Person.find({ status: 'published' }).select('name aliases slug theme');
     
     if (people.length === 0) return res.status(404).json({ message: 'No match found' });
 
-    // Extract names array for string-similarity
-    const names = people.map(p => p.name.toLowerCase());
-    const matches = stringSimilarity.findBestMatch(q.toLowerCase(), names);
+    // Build array of all searchable strings and map back to person
+    let matchTargets = [];
+    let targetToPerson = {};
     
+    people.forEach(p => {
+      const mainName = p.name.toLowerCase();
+      matchTargets.push(mainName);
+      targetToPerson[mainName] = p;
+      
+      if (p.aliases && p.aliases.length > 0) {
+        p.aliases.forEach(alias => {
+          const lowerAlias = alias.toLowerCase();
+          matchTargets.push(lowerAlias);
+          targetToPerson[lowerAlias] = p;
+        });
+      }
+    });
+
+    const matches = stringSimilarity.findBestMatch(q.toLowerCase(), matchTargets);
     const bestMatch = matches.bestMatch;
     
     // Match if >= 70% similar
     if (bestMatch.rating >= 0.7) {
-      const matchedPerson = people.find(p => p.name.toLowerCase() === bestMatch.target);
-      return res.json(matchedPerson);
+      return res.json(targetToPerson[bestMatch.target]);
     }
     
     return res.status(404).json({ message: 'No match found' });
@@ -81,7 +95,7 @@ const uploadAudioToCloudinary = (buffer) => {
 
 const createPerson = async (req, res) => {
   try {
-    const { name, relationship, message, theme, status, songStartTime, songEndTime } = req.body;
+    const { name, aliases, relationship, message, theme, status, songStartTime, songEndTime } = req.body;
     let songUrl = '';
     let songName = '';
     let songSize = 0;
@@ -95,8 +109,11 @@ const createPerson = async (req, res) => {
 
     const slug = await generateSlug(name);
     
+    const parsedAliases = aliases ? aliases.split(',').map(a => a.trim()).filter(a => a) : [];
+
     const person = await Person.create({
       name,
+      aliases: parsedAliases,
       slug,
       relationship,
       message,
@@ -117,9 +134,11 @@ const createPerson = async (req, res) => {
 
 const updatePerson = async (req, res) => {
   try {
-    const { name, relationship, message, theme, status, songStartTime, songEndTime } = req.body;
+    const { name, aliases, relationship, message, theme, status, songStartTime, songEndTime } = req.body;
+    const parsedAliases = aliases ? aliases.split(',').map(a => a.trim()).filter(a => a) : [];
+    
     let updateData = { 
-      name, relationship, message, theme, status,
+      name, aliases: parsedAliases, relationship, message, theme, status,
       songStartTime: songStartTime ? Number(songStartTime) : 0,
       songEndTime: songEndTime ? Number(songEndTime) : 0,
     };
