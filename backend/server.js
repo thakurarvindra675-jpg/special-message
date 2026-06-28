@@ -15,7 +15,21 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','PATCH','OPTIONS'] }));
-app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      workerSrc: ["'self'", "blob:"],
+      connectSrc: ["'self'", "https://res.cloudinary.com", "https://api.cloudinary.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
+      mediaSrc: ["'self'", "https://res.cloudinary.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", "data:"]
+    },
+  },
+}));
 
 // Routes
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
