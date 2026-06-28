@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Save, ArrowLeft, Upload, Music, Bold, Italic, List } from 'lucide-react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import {
+  Save, ArrowLeft, Upload, Music,
+  Bold, Italic, Underline, Strikethrough,
+  List, ListOrdered, Quote, Code, RemoveFormatting,
+  Heading1, Heading2, Heading3
+} from 'lucide-react';
+import { useEditor, EditorContent, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import UnderlineExtension from '@tiptap/extension-underline';
 import AdminLayout from '../../layouts/AdminLayout';
 
 const THEMES = [
@@ -32,13 +38,32 @@ const PersonEditor = () => {
   const [error, setError] = useState('');
 
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, UnderlineExtension],
     content: '',
     editorProps: {
       attributes: {
         class: 'prose prose-invert max-w-none focus:outline-none min-h-[200px] p-4 text-white/90 leading-relaxed',
       },
     },
+  });
+
+  // Reactive editor state so toolbar active indicators update live
+  const editorState = useEditorState({
+    editor,
+    selector: (ctx) => ({
+      bold: ctx.editor?.isActive('bold'),
+      italic: ctx.editor?.isActive('italic'),
+      underline: ctx.editor?.isActive('underline'),
+      strike: ctx.editor?.isActive('strike'),
+      code: ctx.editor?.isActive('code'),
+      blockquote: ctx.editor?.isActive('blockquote'),
+      bulletList: ctx.editor?.isActive('bulletList'),
+      orderedList: ctx.editor?.isActive('orderedList'),
+      h1: ctx.editor?.isActive('heading', { level: 1 }),
+      h2: ctx.editor?.isActive('heading', { level: 2 }),
+      h3: ctx.editor?.isActive('heading', { level: 3 }),
+      paragraph: ctx.editor?.isActive('paragraph'),
+    }),
   });
 
   useEffect(() => {
@@ -120,11 +145,17 @@ const PersonEditor = () => {
       onClick={onClick}
       title={title}
       type="button"
-      className={`p-2 rounded-lg text-sm transition-colors ${active ? 'bg-purple-600/30 text-purple-400' : 'text-white/60 hover:bg-white/10 hover:text-white'}`}
+      className={`p-1.5 rounded-lg text-sm transition-all duration-150 relative ${
+        active
+          ? 'bg-purple-600/40 text-purple-300 shadow-[0_0_8px_rgba(168,85,247,0.4)] ring-1 ring-purple-500/50'
+          : 'text-white/50 hover:bg-white/10 hover:text-white'
+      }`}
     >
       {children}
     </button>
   );
+
+  const Divider = () => <div className="w-px h-4 bg-white/10 mx-0.5 shrink-0" />;
 
   return (
     <AdminLayout>
@@ -191,23 +222,57 @@ const PersonEditor = () => {
 
             {/* Rich Text Editor */}
             <div className="glass-card rounded-2xl overflow-hidden">
-              <div className="px-4 py-3 border-b border-white/10 bg-black/30 flex items-center gap-1 flex-wrap">
-                <span className="text-xs text-white/40 mr-2 font-medium uppercase tracking-wider">Message</span>
-                <ToolbarBtn title="Bold" onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive('bold')}>
-                  <Bold size={15} />
+              <div className="px-3 py-2.5 border-b border-white/10 bg-black/30 flex items-center gap-0.5 flex-wrap">
+                <span className="text-xs text-white/30 mr-1.5 font-medium uppercase tracking-wider shrink-0">Format</span>
+
+                {/* Text style */}
+                <ToolbarBtn title="Bold (Ctrl+B)" onClick={() => editor?.chain().focus().toggleBold().run()} active={editorState?.bold}>
+                  <Bold size={14} />
                 </ToolbarBtn>
-                <ToolbarBtn title="Italic" onClick={() => editor?.chain().focus().toggleItalic().run()} active={editor?.isActive('italic')}>
-                  <Italic size={15} />
+                <ToolbarBtn title="Italic (Ctrl+I)" onClick={() => editor?.chain().focus().toggleItalic().run()} active={editorState?.italic}>
+                  <Italic size={14} />
                 </ToolbarBtn>
-                <ToolbarBtn title="Bullet List" onClick={() => editor?.chain().focus().toggleBulletList().run()} active={editor?.isActive('bulletList')}>
-                  <List size={15} />
+                <ToolbarBtn title="Underline (Ctrl+U)" onClick={() => editor?.chain().focus().toggleUnderline().run()} active={editorState?.underline}>
+                  <Underline size={14} />
                 </ToolbarBtn>
-                <div className="w-px h-4 bg-white/10 mx-1" />
-                <ToolbarBtn title="Paragraph" onClick={() => editor?.chain().focus().setParagraph().run()} active={editor?.isActive('paragraph')}>
-                  <span className="text-xs font-medium">¶</span>
+                <ToolbarBtn title="Strikethrough" onClick={() => editor?.chain().focus().toggleStrike().run()} active={editorState?.strike}>
+                  <Strikethrough size={14} />
                 </ToolbarBtn>
-                <ToolbarBtn title="Heading" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} active={editor?.isActive('heading')}>
-                  <span className="text-xs font-bold">H2</span>
+                <ToolbarBtn title="Inline Code" onClick={() => editor?.chain().focus().toggleCode().run()} active={editorState?.code}>
+                  <Code size={14} />
+                </ToolbarBtn>
+
+                <Divider />
+
+                {/* Headings */}
+                <ToolbarBtn title="Heading 1" onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()} active={editorState?.h1}>
+                  <Heading1 size={14} />
+                </ToolbarBtn>
+                <ToolbarBtn title="Heading 2" onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} active={editorState?.h2}>
+                  <Heading2 size={14} />
+                </ToolbarBtn>
+                <ToolbarBtn title="Heading 3" onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()} active={editorState?.h3}>
+                  <Heading3 size={14} />
+                </ToolbarBtn>
+
+                <Divider />
+
+                {/* Lists & blocks */}
+                <ToolbarBtn title="Bullet List" onClick={() => editor?.chain().focus().toggleBulletList().run()} active={editorState?.bulletList}>
+                  <List size={14} />
+                </ToolbarBtn>
+                <ToolbarBtn title="Ordered List" onClick={() => editor?.chain().focus().toggleOrderedList().run()} active={editorState?.orderedList}>
+                  <ListOrdered size={14} />
+                </ToolbarBtn>
+                <ToolbarBtn title="Blockquote" onClick={() => editor?.chain().focus().toggleBlockquote().run()} active={editorState?.blockquote}>
+                  <Quote size={14} />
+                </ToolbarBtn>
+
+                <Divider />
+
+                {/* Clear */}
+                <ToolbarBtn title="Clear Formatting" onClick={() => editor?.chain().focus().clearNodes().unsetAllMarks().run()} active={false}>
+                  <RemoveFormatting size={14} />
                 </ToolbarBtn>
               </div>
               <EditorContent editor={editor} className="bg-white/[0.03] min-h-[220px]" />
