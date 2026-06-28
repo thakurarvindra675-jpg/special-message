@@ -17,7 +17,7 @@ const AdminLayout = ({ children }) => {
         return;
       }
       try {
-        await axios.get('http://localhost:5000/api/admin/verify', {
+        await axios.get('/api/admin/verify', {
           headers: { Authorization: `Bearer ${token}` }
         });
       } catch {

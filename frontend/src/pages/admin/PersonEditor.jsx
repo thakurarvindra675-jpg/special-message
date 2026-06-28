@@ -45,7 +45,7 @@ const PersonEditor = () => {
       const fetchPerson = async () => {
         try {
           const token = localStorage.getItem('adminToken');
-          const res = await axios.get('http://localhost:5000/api/people', {
+          const res = await axios.get('/api/people', {
             headers: { Authorization: `Bearer ${token}` }
           });
           const person = res.data.find(p => p._id === id);
@@ -100,9 +100,9 @@ const PersonEditor = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       if (isEditing) {
-        await axios.put(`http://localhost:5000/api/people/${id}`, data, config);
+        await axios.put(`/api/people/${id}`, data, config);
       } else {
-        await axios.post('http://localhost:5000/api/people', data, config);
+        await axios.post('/api/people', data, config);
       }
       navigate('/admin/people');
     } catch (err) {

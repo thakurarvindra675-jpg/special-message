@@ -43,8 +43,8 @@ const MessageReveal = () => {
     const fetchData = async () => {
       try {
         const [personRes, settingsRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/people/slug/${slug}`),
-          axios.get('http://localhost:5000/api/settings')
+          axios.get(`/api/people/slug/${slug}`),
+          axios.get('/api/settings')
         ]);
         setPerson(personRes.data);
         setSettings(settingsRes.data);
@@ -61,7 +61,7 @@ const MessageReveal = () => {
 
   useEffect(() => {
     if (phase === 'open' && !isPreview && person?._id) {
-      axios.post('http://localhost:5000/api/analytics/open', {
+      axios.post('/api/analytics/open', {
         personId: person._id,
         browser: navigator.userAgent,
         os: navigator.platform,

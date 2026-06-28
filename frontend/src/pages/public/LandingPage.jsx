@@ -23,7 +23,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/settings').then(res => setSettings(res.data)).catch(console.error);
+    axios.get('/api/settings').then(res => setSettings(res.data)).catch(console.error);
   }, []);
 
   const handleSearch = async (e) => {
@@ -34,7 +34,7 @@ const LandingPage = () => {
     setError(false);
     
     try {
-      const res = await axios.get(`http://localhost:5000/api/people/search?q=${encodeURIComponent(query.trim())}`);
+      const res = await axios.get(`/api/people/search?q=${encodeURIComponent(query.trim())}`);
       
       // If we got a successful response with a single person match
       if (res.data && res.data.slug) {

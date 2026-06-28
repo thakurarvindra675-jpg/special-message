@@ -16,7 +16,7 @@ const PeopleManager = () => {
   const fetchPeople = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      const res = await axios.get('http://localhost:5000/api/people', {
+      const res = await axios.get('/api/people', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPeople(res.data);
@@ -33,7 +33,7 @@ const PeopleManager = () => {
     if (!window.confirm('Are you sure you want to delete this person?')) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:5000/api/people/${id}`, {
+      await axios.delete(`/api/people/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchPeople();
@@ -45,7 +45,7 @@ const PeopleManager = () => {
     if (!window.confirm(`Delete ${selectedIds.length} selected people?`)) return;
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.post('http://localhost:5000/api/people/bulk-delete', { ids: selectedIds }, {
+      await axios.post('/api/people/bulk-delete', { ids: selectedIds }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSelectedIds([]);

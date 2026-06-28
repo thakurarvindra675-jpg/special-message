@@ -21,7 +21,7 @@ const GlobalSettings = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/settings');
+        const res = await axios.get('/api/settings');
         if (res.data) setSettings(res.data);
       } catch (error) {
         console.error(error);
@@ -34,7 +34,7 @@ const GlobalSettings = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem('adminToken');
-      await axios.put('http://localhost:5000/api/settings', settings, {
+      await axios.put('/api/settings', settings, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Settings saved successfully!');
@@ -49,11 +49,11 @@ const GlobalSettings = () => {
   const handleExportBackup = async () => {
     try {
       const token = localStorage.getItem('adminToken');
-      window.open(`http://localhost:5000/api/backup/export?token=${token}`, '_blank');
+      window.open(`/api/backup/export?token=${token}`, '_blank');
       // For a real app, passing token in query is not the best, but this is a quick demo.
       // Better approach: fetch blob and trigger download.
       
-      const res = await axios.get('http://localhost:5000/api/backup/export', {
+      const res = await axios.get('/api/backup/export', {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob'
       });

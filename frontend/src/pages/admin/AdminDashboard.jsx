@@ -33,8 +33,8 @@ const AdminDashboard = () => {
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         const [statsRes, activityRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/analytics/dashboard', config),
-          axios.get('http://localhost:5000/api/activity', config)
+          axios.get('/api/analytics/dashboard', config),
+          axios.get('/api/activity', config)
         ]);
 
         setStats(statsRes.data);
